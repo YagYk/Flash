@@ -7,15 +7,22 @@ from urllib.parse import quote_plus
 
 load_dotenv()
 
-MYSQL_HOST = os.getenv("MYSQL_HOST", "localhost")
-MYSQL_PORT = os.getenv("MYSQL_PORT", "3306")
-MYSQL_USER = os.getenv("MYSQL_USER", "root")
-MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "password")
-MYSQL_DATABASE = os.getenv("MYSQL_DATABASE", "flash_notes")
+# Check if we have a DATABASE_URL (for PostgreSQL on Render)
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-encoded_password = quote_plus(MYSQL_PASSWORD)
+if DATABASE_URL:
+    # Use PostgreSQL on Render
+    SQLALCHEMY_DATABASE_URL = DATABASE_URL
+else:
+    # Use MySQL for local development
+    MYSQL_HOST = os.getenv("MYSQL_HOST", "localhost")
+    MYSQL_PORT = os.getenv("MYSQL_PORT", "3306")
+    MYSQL_USER = os.getenv("MYSQL_USER", "root")
+    MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "password")
+    MYSQL_DATABASE = os.getenv("MYSQL_DATABASE", "flash_notes")
 
-SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{MYSQL_USER}:{encoded_password}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}?charset=utf8mb4"
+    encoded_password = quote_plus(MYSQL_PASSWORD)
+    SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{MYSQL_USER}:{encoded_password}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}?charset=utf8mb4"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
